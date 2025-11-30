@@ -4,17 +4,8 @@ set -e
 echo "Installing QEMU + KVM..."
 
 # Install QEMU, KVM, and related packages
-yay -S --needed --noconfirm \
-    qemu-full \
-    virt-manager \
-    virt-viewer \
-    dnsmasq \
-    vde2 \
-    bridge-utils \
-    openbsd-netcat \
-    ebtables \
-    iptables-nft \
-    libguestfs
+sudo pacman -S qemu-full qemu-img libvirt virt-install virt-manager virt-viewer edk2-ovmf dnsmasq swtpm guestfs-tools libosinfo tuned
+
 
 # Check if virtualization is supported
 echo "Checking CPU virtualization support..."

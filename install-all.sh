@@ -5,8 +5,16 @@ set -e
 sudo -v
 
 # Keep sudo alive while script runs
-while true; do sudo -v; sleep 60; done 2>/dev/null &
+( 
+  while true; do
+    sudo -v
+    sleep 60
+  done
+) &
 SUDO_KEEPALIVE_PID=$!
+
+# Stop sudo keep-alive on exit (success or failure)
+trap 'kill "$SUDO_KEEPALIVE_PID" 2>/dev/null || true' EXIT
 
 # Install all packages in order
 ./install-terminals.sh
@@ -28,12 +36,11 @@ SUDO_KEEPALIVE_PID=$!
 
 # Print instructions LAST
 if [ -f "./grub-theme-notes.sh" ]; then
+  chmod +x ./grub-theme-notes.sh
   ./grub-theme-notes.sh
 fi
 
 if [ -f "./qemu-kvm-notes.sh" ]; then
+  chmod +x ./qemu-kvm-notes.sh
   ./qemu-kvm-notes.sh
 fi
-
-# Stop sudo keep-alive
-trap 'kill "$SUDO_KEEPALIVE_PID"' EXIT

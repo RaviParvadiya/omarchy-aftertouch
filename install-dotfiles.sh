@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -e
 
 ORIGINAL_DIR=$(pwd)
 REPO_URL="https://github.com/raviparvadiya/dotfiles"

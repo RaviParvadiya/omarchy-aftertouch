@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -e
 
 # Check if mise is installed
 if ! command -v mise &>/dev/null; then

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -e
 
 # Check if zsh is installed
 if ! command -v zsh &>/dev/null; then
