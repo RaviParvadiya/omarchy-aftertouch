@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -e
 
+# Activate mise for non-interactive shells
+. <(mise activate bash)
+
 # Check if mise is installed
 if ! command -v mise &>/dev/null; then
     echo "mise is not installed. Please run ./install-mise.sh first."
