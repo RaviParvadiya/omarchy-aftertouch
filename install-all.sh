@@ -35,12 +35,4 @@ trap 'kill "$SUDO_KEEPALIVE_PID" 2>/dev/null || true' EXIT
 ./set-shell.sh
 
 # Print instructions LAST
-if [ -f "./grub-theme-notes.sh" ]; then
-  chmod +x ./grub-theme-notes.sh
-  ./grub-theme-notes.sh
-fi
-
-if [ -f "./qemu-kvm-notes.sh" ]; then
-  chmod +x ./qemu-kvm-notes.sh
-  ./qemu-kvm-notes.sh
-fi
+./install-notes.sh

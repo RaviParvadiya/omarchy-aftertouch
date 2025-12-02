@@ -1,26 +1,87 @@
 #!/usr/bin/env bash
 set -e
 
-# Check if this is an ASUS laptop
+# --- Detect ASUS Laptop ---
 if ! cat /sys/devices/virtual/dmi/id/sys_vendor 2>/dev/null | grep -qi "asus"; then
     exit 0
 fi
 
-# Install tools
-yay -Sy --needed --noconfirm asusctl supergfxctl
-
-# Check if MUX switch is supported
-if ! supergfxctl -g >/dev/null 2>&1; then
-    exit 0
+# --- Add ASUS Linux repository ---
+if ! grep -q "\[g14\]" /etc/pacman.conf; then
+    echo "Adding ASUS Linux g14 repository..."
+    echo -e "\n[g14]\nServer = https://arch.asus-linux.org" | sudo tee -a /etc/pacman.conf
 fi
 
-# Enable services (only if supported)
-echo "Enabling ASUS services..."
-sudo systemctl enable --now supergfxd.service
-sudo systemctl enable --now asusd.service
+# --- Import GPG key ---
+echo "Importing ASUS Linux GPG key..."
+sudo pacman-key --recv-keys 8F654886F17D497FEFE3DB448B15A6B0E9A3FA35
+sudo pacman-key --finger 8F654886F17D497FEFE3DB448B15A6B0E9A3FA35
+sudo pacman-key --lsign-key 8F654886F17D497FEFE3DB448B15A6B0E9A3FA35
 
-# echo "Optional: setting default GPU mode to hybrid..."
-# sudo mkdir -p /etc/supergfxctl
-# echo "mode=hybrid" | sudo tee /etc/supergfxctl/graphics.conf >/dev/null
+# --- Update package database ---
+sudo pacman -Sy
 
-echo "Reboot for GPU mode switching to fully work."
+# --- Install ASUS tools ---
+echo "Installing asusctl..."
+sudo pacman -S --needed --noconfirm asusctl
+
+# --- Install firmware daemon ---
+echo "Installing fwupd for firmware updates..."
+sudo pacman -S --needed --noconfirm fwupd
+sudo systemctl enable --now fwupd.service
+
+# --- Remove open-source NVIDIA driver if installed ---
+if pacman -Q nvidia-open-dkms &>/dev/null; then
+    echo "Removing nvidia-open-dkms..."
+    sudo pacman -Rns --noconfirm nvidia-open-dkms
+fi
+
+# --- Install proprietary NVIDIA drivers ---
+echo "Installing NVIDIA proprietary drivers and utilities..."
+sudo pacman -S --needed --noconfirm \
+    nvidia-dkms \
+    nvidia-utils \
+    lib32-nvidia-utils \
+    libva-nvidia-driver \
+    vulkan-icd-loader \
+    egl-wayland \
+    qt5-wayland \
+    qt6-wayland
+
+# --- Configure NVIDIA modprobe for early KMS ---
+# echo "options nvidia_drm modeset=1" | sudo tee /etc/modprobe.d/nvidia.conf >/dev/null
+
+# --- Configure mkinitcpio for early loading ---
+# MKINITCPIO_CONF="/etc/mkinitcpio.conf"
+# NVIDIA_MODULES="nvidia nvidia_modeset nvidia_uvm nvidia_drm"
+
+# sudo cp "$MKINITCPIO_CONF" "${MKINITCPIO_CONF}.backup"
+# sudo sed -i -E 's/ nvidia_drm//g; s/ nvidia_uvm//g; s/ nvidia_modeset//g; s/ nvidia//g;' "$MKINITCPIO_CONF"
+# sudo sed -i -E "s/^(MODULES=\\()/\\1${NVIDIA_MODULES} /" "$MKINITCPIO_CONF"
+# sudo sed -i -E 's/  +/ /g' "$MKINITCPIO_CONF"
+
+# sudo mkinitcpio -P
+
+# --- Install NVIDIA laptop power management for hybrid graphics ---
+if ! command -v nvidia-powerd &>/dev/null; then
+    echo "Installing NVIDIA laptop power management..."
+    git clone https://gitlab.com/asus-linux/nvidia-laptop-power-cfg.git /tmp/nvidia-laptop-power-cfg
+    
+    pushd /tmp/nvidia-laptop-power-cfg >/dev/null
+   
+    if ! makepkg -sfi --noconfirm; then
+        echo "Error: Failed to install nvidia-laptop-power-cfg"
+        popd >/dev/null
+        exit 1
+    fi
+
+    popd >/dev/null
+fi
+
+# --- Enable NVIDIA power management services ---
+echo "Enabling NVIDIA power management services..."
+sudo systemctl enable nvidia-powerd
+sudo systemctl enable nvidia-suspend.service nvidia-hibernate.service nvidia-resume.service
+sudo systemctl enable --now nvidia-powerd
+
+echo "ASUS setup complete."

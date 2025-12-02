@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+echo ""
+echo "-------------------------------------------"
+echo "            QEMU + KVM NOTE"
+echo "-------------------------------------------"
+echo ""
+echo "⚠ IMPORTANT: Log out and log back in for group changes to take effect!"
+echo ""
+echo "Useful commands:"
+echo "  virt-manager                # Launch GUI"
+echo "  systemctl status libvirtd   # Check service"
+echo "  virsh list --all            # List VMs"
+echo ""
+echo "-------------------------------------------"
