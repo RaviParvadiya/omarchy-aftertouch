@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 set -e
 
-# --- Activate mise for non-interactive shells ---
-. <(mise activate bash)
-
 if ! command -v mise &>/dev/null; then
     echo "mise is not installed. Please run ./install-mise.sh first."
     exit 1
 fi
+
+# --- Activate mise for non-interactive shells ---
+eval (mise activate bash)
 
 if ! command -v go &>/dev/null; then
     mise install go@latest

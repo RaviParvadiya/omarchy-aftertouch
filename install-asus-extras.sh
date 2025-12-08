@@ -10,20 +10,23 @@ fi
 if ! grep -q "\[g14\]" /etc/pacman.conf; then
     echo "Adding ASUS Linux g14 repository..."
     echo -e "\n[g14]\nServer = https://arch.asus-linux.org" | sudo tee -a /etc/pacman.conf
+
+    # --- Import GPG key ---
+    echo "Importing ASUS Linux GPG key..."
+    sudo pacman-key --recv-keys 8F654886F17D497FEFE3DB448B15A6B0E9A3FA35
+    sudo pacman-key --finger 8F654886F17D497FEFE3DB448B15A6B0E9A3FA35
+    sudo pacman-key --lsign-key 8F654886F17D497FEFE3DB448B15A6B0E9A3FA35
 fi
 
-# --- Import GPG key ---
-echo "Importing ASUS Linux GPG key..."
-sudo pacman-key --recv-keys 8F654886F17D497FEFE3DB448B15A6B0E9A3FA35
-sudo pacman-key --finger 8F654886F17D497FEFE3DB448B15A6B0E9A3FA35
-sudo pacman-key --lsign-key 8F654886F17D497FEFE3DB448B15A6B0E9A3FA35
 
 # --- Update package database ---
 sudo pacman -Sy
 
 # --- Install ASUS tools ---
 echo "Installing asusctl..."
-sudo pacman -S --needed --noconfirm asusctl
+if ! pacman -Q asusctl &>/dev/null; then
+    sudo pacman -S --noconfirm asusctl
+fi
 
 # --- Install firmware daemon ---
 echo "Installing fwupd for firmware updates..."
@@ -41,6 +44,7 @@ echo "Installing NVIDIA proprietary drivers and utilities..."
 sudo pacman -S --needed --noconfirm \
     nvidia-dkms \
     nvidia-utils \
+    nvidia-prime \
     lib32-nvidia-utils \
     libva-nvidia-driver \
     vulkan-icd-loader \
@@ -65,7 +69,13 @@ sudo pacman -S --needed --noconfirm \
 # --- Install NVIDIA laptop power management for hybrid graphics ---
 if ! command -v nvidia-powerd &>/dev/null; then
     echo "Installing NVIDIA laptop power management..."
-    git clone https://gitlab.com/asus-linux/nvidia-laptop-power-cfg.git /tmp/nvidia-laptop-power-cfg
+    TMP_DIR="/tmp/nvidia-laptop-power-cfg"
+
+    if [ -d "$TMP_DIR" ]; then
+        rm -rf "$TMP_DIR"
+    fi
+
+    git clone https://gitlab.com/asus-linux/nvidia-laptop-power-cfg.git "$TMP_DIR"
     
     pushd /tmp/nvidia-laptop-power-cfg >/dev/null
    

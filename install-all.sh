@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -e
 
+# --- Update package database on fresh Arch install ---
+sudo pacman -Syy
+
 # Cache sudo password for the entire script
 sudo -v
 
@@ -29,7 +32,7 @@ trap 'kill "$SUDO_KEEPALIVE_PID" 2>/dev/null || true' EXIT
 ./install-hyprland-overrides.sh
 ./install-grub-theme.sh
 ./install-doom-emacs.sh
-./install-qemu-kvm.sh
+# ./install-qemu-kvm.sh
 ./install-brave.sh
 
 ./set-shell.sh
