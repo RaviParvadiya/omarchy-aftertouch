@@ -6,8 +6,12 @@ if ! command -v mise &>/dev/null; then
     exit 1
 fi
 
+# --- Ensure mise is available ---
+export PATH="$HOME/.local/share/mise/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
+
 # --- Activate mise for non-interactive shells ---
-eval (mise activate bash)
+eval "$(mise activate bash)"
 
 if ! command -v go &>/dev/null; then
     mise install go@latest

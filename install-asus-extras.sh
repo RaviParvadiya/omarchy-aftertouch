@@ -67,31 +67,31 @@ sudo pacman -S --needed --noconfirm \
 # sudo mkinitcpio -P
 
 # --- Install NVIDIA laptop power management for hybrid graphics ---
-if ! command -v nvidia-powerd &>/dev/null; then
-    echo "Installing NVIDIA laptop power management..."
-    TMP_DIR="/tmp/nvidia-laptop-power-cfg"
+# if ! command -v nvidia-powerd &>/dev/null; then
+#     echo "Installing NVIDIA laptop power management..."
+#     TMP_DIR="/tmp/nvidia-laptop-power-cfg"
 
-    if [ -d "$TMP_DIR" ]; then
-        rm -rf "$TMP_DIR"
-    fi
+#     if [ -d "$TMP_DIR" ]; then
+#         rm -rf "$TMP_DIR"
+#     fi
 
-    git clone https://gitlab.com/asus-linux/nvidia-laptop-power-cfg.git "$TMP_DIR"
+#     git clone https://gitlab.com/asus-linux/nvidia-laptop-power-cfg.git "$TMP_DIR"
     
-    pushd /tmp/nvidia-laptop-power-cfg >/dev/null
+#     pushd /tmp/nvidia-laptop-power-cfg >/dev/null
    
-    if ! makepkg -sfi --noconfirm; then
-        echo "Error: Failed to install nvidia-laptop-power-cfg"
-        popd >/dev/null
-        exit 1
-    fi
+#     if ! makepkg -sfi --noconfirm; then
+#         echo "Error: Failed to install nvidia-laptop-power-cfg"
+#         popd >/dev/null
+#         exit 1
+#     fi
 
-    popd >/dev/null
-fi
+#     popd >/dev/null
+# fi
 
 # --- Enable NVIDIA power management services ---
-echo "Enabling NVIDIA power management services..."
-sudo systemctl enable nvidia-powerd
-sudo systemctl enable nvidia-suspend.service nvidia-hibernate.service nvidia-resume.service
-sudo systemctl enable --now nvidia-powerd
+# echo "Enabling NVIDIA power management services..."
+# sudo systemctl enable nvidia-powerd
+# sudo systemctl enable nvidia-suspend.service nvidia-hibernate.service nvidia-resume.service
+# sudo systemctl enable --now nvidia-powerd
 
 echo "ASUS setup complete."
